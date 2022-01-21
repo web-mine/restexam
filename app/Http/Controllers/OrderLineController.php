@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Models\OrderLine;
+use App\Models\Product;
 use Illuminate\Http\Request;
 
-class OrderController extends Controller
+class OrderLineController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -22,9 +24,12 @@ class OrderController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Order $order)
     {
-        //
+        $products = Product::all(['id', 'name']);
+        return view('order_lines.create')
+            ->with('order', $order)
+            ->with('products', $products);
     }
 
     /**
@@ -33,16 +38,19 @@ class OrderController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request, Order $order)
     {
         $request->validate([
-            'dinner_table_id' => 'required',
+            'amount' => 'required',
+            'product_id' => 'required',
         ]);
+        $product = Product::find($request->product_id);
 
-        $order = Order::create($request->all());
+        $request->request->set('order_id', $order->id);
+        $request->request->set('name', $product->name);
+        $request->request->set('price', $product->price);
 
-        $order->save();
-
+        OrderLine::create($request->all());
 
         return redirect()->route('orders.show', ['order' => $order->id]);
     }
@@ -50,54 +58,44 @@ class OrderController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Order  $order
+     * @param  \App\Models\OrderLine  $orderLine
      * @return \Illuminate\Http\Response
      */
-    public function show(Order $order)
+    public function show(OrderLine $orderLine)
     {
-        return view('orders.show')->with('order', $order);
+        //
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Order  $order
+     * @param  \App\Models\OrderLine  $orderLine
      * @return \Illuminate\Http\Response
      */
-    public function edit(Order $order)
+    public function edit(OrderLine $orderLine)
     {
-        return view('orders.edit')->with('order', $order);
+        //
     }
 
     /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Order  $order
+     * @param  \App\Models\OrderLine  $orderLine
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Order $order)
+    public function update(Request $request, OrderLine $orderLine)
     {
-
-        $request->validate([
-            'open' => 'required',
-        ]);
-        $request->request->set('open', $request['open'] != '0');
-
-
-        $order->update($request->all());
-
-        return redirect()->route('dinner_tables.index')
-            ->with('success', 'Order gesloten!');
+        //
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Order  $order
+     * @param  \App\Models\OrderLine  $orderLine
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Order $order)
+    public function destroy(OrderLine $orderLine)
     {
         //
     }

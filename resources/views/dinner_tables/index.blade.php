@@ -33,15 +33,15 @@
             <th>{{$dinner_table->number_of_persons}}</th>
             <td>{{$dinner_table->description}}</td>
             <td>
-                {{$dinner_table->orders}}
-                @empty($dinner_table->orders)
-                {{$dinner_table->orders->count()}}
+
+                @if($dinner_table->orders->where('open', 1)->first() != null)
+                    <a class="btn btn-primary" href="{{ route('orders.show', ['order' => $dinner_table->orders->where('open', 1)->first()->id]) }}"> Bewerk order</a>
                 @else
                     <form action="{{ route('orders.store') }}" method="POST">
                         @csrf
                         <input type="hidden" value={{$dinner_table->id}} name="dinner_table_id">
                         <div class="col-xs-12 col-sm-12 col-md-12 text-center">
-                            <button type="submit" class="btn btn-primary">Submit</button>
+                            <button type="submit" class="btn btn-primary">Maak nieuwe order</button>
                         </div>
                     </form>
                 @endif
